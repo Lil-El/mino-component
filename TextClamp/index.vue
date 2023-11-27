@@ -3,7 +3,7 @@
     @date 2020-03-18
     @author Mino
  -->
-<template>
+ <template>
   <div class="text-clamp">
     <div class="text" :style="{height}">
       <span v-if="isVisible" class="btn" @click="toggle">{{isExpand ? '收起' : '... 展开'}}</span>
@@ -29,6 +29,10 @@ export default {
     lineHeight: {
       type: Number,
       default: 20
+    },
+    selectors: {
+      type: String,
+      default: ""
     }
   },
   data () {
@@ -71,11 +75,22 @@ export default {
   },
   methods: {
     init () {
+      this.isExpand = false;
       this.textHeight = this.$refs?.textRef?.clientHeight || 0;
       this.isVisible = this.textHeight > this.lines * this.lineHeight;
     },
     toggle () {
       this.isExpand = !this.isExpand;
+      if (!this.isExpand && this.selectors) {
+        const initEl = document.querySelector(this.selectors);
+        setTimeout(() => {
+          initEl.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+            inline: 'center'
+          });
+        }, 97)
+      }
     }
   }
 }
