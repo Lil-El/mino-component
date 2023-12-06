@@ -1,6 +1,6 @@
 # Custom Component By Mino
 
-> 记录工作中自己实现自定义组件
+> 记录工作中自己实现自定义组件或公共方法
 
 ## Web Component
 
@@ -10,3 +10,7 @@
 ## Mini Program & App Component
 
 - bd-picker: 数据选择器。支持筛选、多选、单选、折叠等的组件，功能类似于 element-ui 的`el-select`
+
+## Methods
+
+- Downloader: 文件下载器

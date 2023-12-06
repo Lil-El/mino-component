@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Download Demo.</title>
+  </head>
+  <body>
+    <button data-method="1">矢量文件下载.</button>
+    <button data-method="2">附件文件下载.</button>
+    <button data-method="3">下载.</button>
+
+    <script type="module">
+      import { Downloader } from "./index.js";
+
+      // string => blob
+      function stringToBlob(str) {
+        return new Blob([str], { type: "text/plain" });
+      }
+
+      // mock request
+      const request = (content) => {
+        console.log("request start.");
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            console.log("request end.");
+            resolve({
+              status: 200,
+              data: stringToBlob(content || ""),
+            });
+          }, 2000);
+        });
+      };
+
+      // 绑定事件
+      const btns = document.querySelectorAll("button");
+      btns.forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const method = e.target.dataset.method;
+          if (method === "1") return void handleClick1();
+          if (method === "2") return void handleClick2();
+          if (method === "3") return void handleClick3();
+        });
+      });
+
+      // downloader 实例初始化 - 设置公共回调
+      const downloader = new Downloader();
+      downloader.before((next) => {
+        console.log("loading start.");
+        document.body.style.background = "gray";
+        next();
+      });
+      downloader.after(() => {
+        console.log("loading end.");
+        document.body.style.background = "white";
+      });
+      downloader.error((err) => {
+        console.error(err);
+      });
+
+      // 继承回调
+      function handleClick1() {
+        const checkDownloader = new Downloader(downloader);
+        checkDownloader
+          .before(async (next) => {
+            console.log("校验start.");
+            await new Promise((r) => {
+              setTimeout(() => {
+                r();
+              }, 1000);
+            });
+            console.log("校验end.");
+            next();
+          })
+          .request(() => request("Hello World."))
+          .download(`file-${Date.now()}.xls`);
+      }
+
+      // 共用回调
+      function handleClick2() {
+        downloader.request(() => request("Hello World.")).download(`file-${Date.now()}.xls`);
+      }
+
+      // 基础用法
+      function handleClick3() {
+        const timestamp = Date.now();
+        const content = "Hello World.";
+        const downloader1 = new Downloader();
+        downloader1
+          .before((next) => ((document.body.style.background = "gray"), console.log("loading start."), next()))
+          .request(() => request(content))
+          .after(() => ((document.body.style.background = "white"), console.log("loading end.")))
+          .error((err) => console.error(err))
+          .download(`file-${timestamp}.xls`);
+      }
+    </script>
+  </body>
+</html>
