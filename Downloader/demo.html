@@ -11,8 +11,15 @@
     <button data-method="3">下载.</button>
     <button data-method="4">错误.</button>
 
+    <script type="importmap">
+      {
+        "imports": {
+          "downloader": "./index.js"
+        }
+      }
+    </script>
     <script type="module">
-      import { Downloader } from "./index.js";
+      import { Downloader } from "downloader";
 
       // string => blob
       function stringToBlob(str, error) {
@@ -93,7 +100,7 @@
           .request(() => request(content))
           .after(() => ((document.body.style.background = "white"), console.log("loading end.")))
           .error((err) => console.error(err))
-          .downloader1.download(`file-${timestamp}.xls`);
+          .download(`file-${timestamp}.xls`);
       }
 
       // 错误
