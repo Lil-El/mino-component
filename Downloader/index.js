@@ -6,6 +6,9 @@ export class Downloader {
   /* 标识状态的`promise` */
   #promise = null;
 
+  /* 文件流缓存 */
+  #blobPart = null;
+
   /* 执行前回调 */
   #beforeHandler = [];
 
@@ -51,11 +54,20 @@ export class Downloader {
     if (this.#promise) return this;
 
     let resolver = null;
+    this.#blobPart = null;
     this.#promise = new Promise((resolve) => (resolver = resolve));
 
     const next = (index = 0) => {
       if (index === this.#beforeHandler.length) {
         request()
+          .then(async (response) => {
+            if (response.data?.type === "application/json") {
+              const dataStr = await response.data.text();
+              const data = JSON.parse(dataStr);
+              if (data.code == 500) throw new Error(data.msg);
+            }
+            return (this.#blobPart = response.data);
+          })
           .then(resolver)
           .catch(this.#errorHandler)
           .finally(() => {
@@ -63,7 +75,8 @@ export class Downloader {
             this.#promise = null;
           });
       } else {
-        this.#beforeHandler[index++](() => next(index));
+        // 使用 Promise 保证 return 和 next并发执行, 避免 downloader.request().[method]() 获取不到回调
+        Promise.resolve().then(() => this.#beforeHandler[index++](() => next(index)));
       }
     };
     next();
@@ -75,20 +88,12 @@ export class Downloader {
    * 将下载器的文件流转换为文件并下载至本地
    * @param {String} fileName - 文件名称
    * @param {String} MIME - 文件`MIME`类型
-   * @description [常见MIME类型](https://www.runoob.com/http/mime-types.html)
    */
   download(fileName, MIME) {
-    this.#promise?.then((response) => {
-      if (response.data?.type === "application/json") {
-        response.data
-          .text()
-          .then((data) => JSON.parse(data))
-          .then((data) => {
-            if (data.code == 500) return void this.#errorHandler?.(data);
-          });
-      } else {
-        Downloader.transform(response.data, fileName, MIME);
-      }
+    // 保证异步调用 doanloader.download() 时，仍然可以使用缓存下载文件
+    const promise = this.#blobPart ? Promise.resolve(this.#blobPart) : this.#promise;
+    promise?.then((blobPart) => {
+      Downloader.transform(blobPart, fileName, MIME);
     });
   }
 
