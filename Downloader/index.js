@@ -18,7 +18,11 @@ export class Downloader {
   /* error回调 */
   #errorHandler = null;
 
-  /** @constructor */
+  /**
+   * 对象克隆
+   * @constructor
+   * @param {Downloader|undefined} downloader - `Downloader`实例
+   */
   constructor(downloader) {
     if (downloader instanceof Downloader) {
       this.#beforeHandler = [...downloader.#beforeHandler];
@@ -28,19 +32,28 @@ export class Downloader {
     return this;
   }
 
-  /** 设置执行前回调 */
+  /**
+   * 设置执行前回调
+   * @param {Function} handler - `before`回调函数
+   */
   before(handler) {
     this.#beforeHandler.push(handler);
     return this;
   }
 
-  /** 设置执行后回调 */
+  /**
+   * 设置执行后回调
+   * @param {Function} handler - after`回调函数
+   */
   after(handler) {
     this.#afterHandler = handler;
     return this;
   }
 
-  /** 设置error回调 */
+  /**
+   * 设置error回调
+   * @param {(err: string|undefined)=>{}} handler - `error`回调函数
+   */
   error(handler) {
     this.#errorHandler = handler;
     return this;
@@ -48,7 +61,7 @@ export class Downloader {
 
   /**
    * 执行下载请求
-   * @param {() => Promise<Response>} request
+   * @param {() => Promise<Response>} request - 文件请求函数
    */
   request(request) {
     if (this.#promise) return this;
