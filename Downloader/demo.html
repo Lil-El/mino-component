@@ -40,6 +40,15 @@
         });
       };
 
+      /**
+       * @async
+       * @function request2
+       * @return {Promise<{status: number, data: Blob}>}
+       */ 
+      async function request2() {
+        return request("hello world!");
+      }
+
       // 绑定事件
       const btns = document.querySelectorAll("button");
       btns.forEach((btn) => {

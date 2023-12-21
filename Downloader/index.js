@@ -1,15 +1,25 @@
 /**
- * @class Downloader 文件下载器
- * @author Mino
+ * 
+ * @class
+ * @classdesc Downloader 文件下载器
+ * @tutorial {@link http://127.0.0.1:5500/downloader/demo.html Downloader Demo} 具体用法
+ * @author Mino <yxd99324@qq.com>
  */
 export class Downloader {
   /* 标识状态的`promise` */
   #promise = null;
 
-  /* 文件流缓存 */
+  /**
+   * 文件流缓存
+   * @access private
+   */
   #blobPart = null;
 
-  /* 执行前回调 */
+  /**
+   * 执行前回调
+   * @private
+   * @type {Function[]}
+   */
   #beforeHandler = [];
 
   /* 执行前回调 */
@@ -21,7 +31,7 @@ export class Downloader {
   /**
    * 对象克隆
    * @constructor
-   * @param {Downloader|undefined} downloader - `Downloader`实例
+   * @param {Downloader=} downloader - `Downloader`实例
    */
   constructor(downloader) {
     if (downloader instanceof Downloader) {
@@ -43,7 +53,7 @@ export class Downloader {
 
   /**
    * 设置执行后回调
-   * @param {Function} handler - after`回调函数
+   * @param {(function():void)?} [handler] - `after`回调函数
    */
   after(handler) {
     this.#afterHandler = handler;
@@ -52,7 +62,9 @@ export class Downloader {
 
   /**
    * 设置error回调
-   * @param {(err: string|undefined)=>{}} handler - `error`回调函数
+   * @param {(err: string=)=>void} handler - `error`回调函数
+   * @param {(err?: string)=>void} handler - `error`回调函数
+   * @param {ErrorCallback} handler - `error`回调函数
    */
   error(handler) {
     this.#errorHandler = handler;
@@ -62,6 +74,7 @@ export class Downloader {
   /**
    * 执行下载请求
    * @param {() => Promise<Response>} request - 文件请求函数
+   * @return {this}
    */
   request(request) {
     if (this.#promise) return this;
@@ -109,13 +122,12 @@ export class Downloader {
       Downloader.transform(blobPart, fileName, MIME);
     });
   }
-
   /**
    * 文件流转换为文件并下载至本地
    * @param {BlobPart[]} blobPart - 文件流
    * @param {String} fileName - 文件名称
-   * @param {String} MIME - 文件`MIME`类型
-   * @description [常见MIME类型](https://www.runoob.com/http/mime-types.html)
+   * @param {String} MIME - 文件[MIME](https://www.runoob.com/http/mime-types.html)类型
+   * @see {@link https://www.runoob.com/http/mime-types.html MIME} for MIME types.
    */
   static transform(blobPart, fileName, MIME) {
     const link = document.createElement("a");
@@ -128,3 +140,20 @@ export class Downloader {
     document.body.removeChild(link); // 释放标签
   }
 }
+
+/**
+ * error callback.
+ * @callback ErrorCallback
+ * @param {string} [err] - err message
+ * @return {void}
+ */
+
+/**
+ * Download data from the specified URL.
+ * `@ async` 标记表示函数是异步的，这意味着它是使用语法 async function foo () {} 声明的。
+ *
+ * @async
+ * @function downloadData
+ * @param {string} url - The URL to download from.
+ * @return {Promise<string>} The data from the URL.
+ */
