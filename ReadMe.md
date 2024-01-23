@@ -14,3 +14,7 @@
 ## Methods
 
 - Downloader: 文件下载器
+
+## Global Upload And Download
+
+- TODO: 全局上传和下载（分片）
